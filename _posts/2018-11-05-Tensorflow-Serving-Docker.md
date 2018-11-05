@@ -6,7 +6,7 @@
 # 使用 TensorFlow Serving 和 Docker 服务 ResNet
 TensorFlow Serving 在 Docker 容器中运行
 
-<div align=center>![这里写图片描述](http:...)
+![这里写图片描述](http:...)
 
 自 TensorFlow Serving 1.8 发布以来，我们一直在改进对 Docker 的支持。 我们现在提供 Docker images 用于 CPU 和 GPU 模型的服务和开发。
 为了解使用 TensorFlow Serving 部署模型究竟有多么容易，让我们尝试将 ResNet 模型投入生产。 此模型在 ImageNet 数据集上进行训练，
