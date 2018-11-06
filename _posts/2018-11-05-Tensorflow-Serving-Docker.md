@@ -2,7 +2,7 @@
 layout: post
 title: ""
 categories: Tensorflow
-tags: docker, deploy
+tags: Tensorflow, Serving, Docker, Deploy
 author: ZhP
 ---
 
@@ -109,7 +109,7 @@ Your CPU supports instructions that this TensorFlow binary was not compiled to u
 TensorFlow Serving 已发布的 Docker 镜像旨在竭尽所能来使用 CPU 架构.因此省略了一些优化以最大限度地提高兼容性.如果您没有看到此消息.则您的二进制文件可能已针对您的 CPU 进行了优化.
 根据您的模型执行的操作.这些优化可能会对您的服务性能产生重大影响.值得庆幸的是.将您自己的优化服务镜像组合在一起非常简单.
 
-首先.我们要构建 TensorFlow Serving 的优化版本.最简单的方法是构建官方的 TensorFlow Serving 开发环境 Docker 镜像.这具有为镜像构建的系统自动生成优化的 TensorFlow 服务二进制文件的良好特性.为了区分我们创建的镜像和官方镜像.我们将 $USER/ 添加到镜像名称之前.
+首先, 我们要构建 TensorFlow Serving 的优化版本. 最简单的方法是构建官方的 TensorFlow Serving 开发环境 Docker 镜像. 这具有为镜像构建的系统自动生成优化的 TensorFlow 服务二进制文件的良好特性.为了区分我们创建的镜像和官方镜像, 我们将`$USER/`添加到镜像名称之前.
 让我们称这个开发镜像为 $USER/tensorflow-serving-devel:
 
 ```bash
@@ -147,4 +147,4 @@ Prediction class: 282, avg latency: 84.8849 ms
 ```bash
 $ docker stop tfserving_resnet Or docker kill tfserving_resnet
 ```
-```````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+``````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
