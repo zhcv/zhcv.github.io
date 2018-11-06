@@ -2,7 +2,7 @@
 layout: post
 title: ""
 categories: Tensorflow
-tags: docker, deploy, product
+tags: docker, deploy
 author: ZhP
 ---
 
@@ -16,8 +16,7 @@ author: ZhP
 
 ## 使用 TensorFlow Serving 和 Docker 服务 ResNet
 
-![TensorFlow Serving在Docker容器中运行](./imgs/640.webp)
-
+![TensorFlow Serving在Docker容器中运行]()
 自 TensorFlow Serving 1.8 发布以来.我们一直在改进对 Docker 的支持. 我们现在提供 Docker images 用于 CPU 和 GPU 模型的服务和开发.为了解使用 TensorFlow Serving 部署模型究竟有多么容易.让我们尝试将 ResNet 模型投入生产. 此模型在 ImageNet 数据集上进行训练.并将 JPEG 镜像作为输入并返回镜像的分类类别.
 
 我们的示例将假设您正在运行 Linux.不过它在 macOS 或 Windows 应该也可以运行.仅需少量修改.甚至不需要修改.
@@ -43,8 +42,8 @@ $ ls /tmp/resnet
 ```
 $ docker pull tensorflow/serving 
 $ docker run -p 8501:8501  --name tfserving_resnet \ 
-      --mount type=bind.source=/tmp/resnet.target=/models/resnet \ 
-      -e MODEL_NAME=resnet -t tensorflow/serving &
+             --mount type=bind, source=/tmp/resnet.target=/models/resnet \ 
+             -e MODEL_NAME=resnet -t tensorflow/serving &
 
 ... 
 ... main.cc:327]在0.0.0.0:8500运行ModelServer ...... 
@@ -53,17 +52,17 @@ $ docker run -p 8501:8501  --name tfserving_resnet \
 
 分解命令行参数.我们:
 
-+ -p 8501:8501 : 将容器的端口 8501(TensorFlow 服务响应 REST API 请求)发布到主机的端口 8501
+* -p 8501:8501 : 将容器的端口 8501(TensorFlow 服务响应 REST API 请求)发布到主机的端口 8501
 
-+ --name tfserving_resnet : 我们为容器创建名称为`tfserving_resnet`.这样稍后我们可以作参考
+* --name tfserving_resnet : 我们为容器创建名称为`tfserving_resnet`.这样稍后我们可以作参考
 
-+ --mount type=bind,source=/tmp/resnet,target=/models/resnet: 在容器(/models/resnet)上安装主机的本地目录(/tmp/resnet), 以便 TensorFlow 服务可以从容器内部读取模型.
+* --mount type=bind,source=/tmp/resnet,target=/models/resnet: 在容器(/models/resnet)上安装主机的本地目录(/tmp/resnet), 以便 TensorFlow 服务可以从容器内部读取模型.
 
-+ -e MODEL_NAME=resnet : 告诉 TensorFlow Serving 下载名为`resnet`的模型
+* -e MODEL_NAME=resnet : 告诉 TensorFlow Serving 下载名为`resnet`的模型
 
-+ -t tensorflow/serving : 基于服务镜像 “tensorflow / serving” 运行 Docker 容器
+* -t tensorflow/serving : 基于服务镜像`tensorflow/serving`运行 Docker 容器
 
-接下来.让我们下载 python 客户端脚本.它将发送服务的模型镜像并获取预测.我们还将测量服务器响应时间.
+接下来让我们下载 python 客户端脚本, 它将发送服务的模型镜像并获取预测, 我们还将测量服务器响应时间.
 
 ```shell
 $ curl -o /tmp/resnet/resnet_client.py https://raw.githubusercontent.com/tensorflow/serving/master/tensorflow_serving/example/resnet_client.py
@@ -101,13 +100,13 @@ $ python /tmp/resnet/resnet_client.py
 Prediction class: 282, avg latency: 185.644 ms
 ```
 
-如您所见.使用 TensorFlow Serving 和 Docker 创建模型非常简单直白.您甚至可以创建自己的嵌入式模型的自定义 Docker 镜像.以便更轻松地进行部署.
+如您所见.使用 TensorFlow Serving 和 Docker 创建模型非常简单直白.您甚至可以创建自己的嵌入式模型的自定义 Docker 镜像. 以便更轻松地进行部署.
 
 ## 通过构建优化的 TensorFlow Serving 二进制文件来提高性能
 
 既然我们在 Docker 中提供了一个模型.您可能已经注意到来自 TensorFlow Serving 的日志消息如下所示:
 
-`Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA`
+Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
 
 TensorFlow Serving 已发布的 Docker 镜像旨在竭尽所能来使用 CPU 架构.因此省略了一些优化以最大限度地提高兼容性.如果您没有看到此消息.则您的二进制文件可能已针对您的 CPU 进行了优化.
 根据您的模型执行的操作.这些优化可能会对您的服务性能产生重大影响.值得庆幸的是.将您自己的优化服务镜像组合在一起非常简单.
@@ -125,8 +124,8 @@ $ docker build -t $USER/tensorflow-serving-devel \
 
 ```bash
 $ docker build -t $USER/tensorflow-serving \
-      --build-arg TF_SERVING_BUILD_IMAGE=$USER/tensorflow-serving-devel \ 
-      https://github.com/tensorflow/serving.git#:tensorflow_serving/tools/docker
+               --build-arg TF_SERVING_BUILD_IMAGE=$USER/tensorflow-serving-devel \ 
+               https://github.com/tensorflow/serving.git#:tensorflow_serving/tools/docker
 ```
 
 现在我们有了新的服务镜像.让我们再次启动服务器:
@@ -134,8 +133,8 @@ $ docker build -t $USER/tensorflow-serving \
 ```bash
 $ docker kill tfserving_resnet
 $ docker run -p 8501:8501 --name tfserving_resnet \
-    --mount type=bind,source=/tmp/resnet,target=/models/resnet \
-    -e MODEL_NAME=resnet -t $USER/tensorflow-serving &
+             --mount type=bind,source=/tmp/resnet,target=/models/resnet \
+             -e MODEL_NAME=resnet -t $USER/tensorflow-serving &
 ```
 
 最后运行我们的客户端:
@@ -152,4 +151,4 @@ Prediction class: 282, avg latency: 84.8849 ms
 $ docker stop tfserving_resnet
 $ docker kill tfserving_resnet
 ```
-------------------------------------------------------------------------------
+``````````````````````````````````````````````````````````````````````````````
