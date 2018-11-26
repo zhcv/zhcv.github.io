@@ -42,7 +42,7 @@ $ ls /tmp/resnet
 ```
 $ docker pull tensorflow/serving 
 $ docker run -p 8501:8501  --name tfserving_resnet \ 
-             --mount type=bind, source=/tmp/resnet.target=/models/resnet \ 
+             --mount type=bind,source=/tmp/resnet,target=/models/resnet \ 
              -e MODEL_NAME=resnet -t tensorflow/serving &
 
 ... 
