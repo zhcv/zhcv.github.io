@@ -19,37 +19,38 @@ author: ZhP
 ## [blas](http://www.netlib.org/blas/blas.tgz) [cblas](http://www.netlib.org/blas/blast-forum/cblas.tgz) [lapack](http://www.netlib.org/lapack/lapack-3.4.2.tgz)
 
 3  这里就是具体的编译步骤
-+ 编译blas， 进入BLAS文件夹，执行以下几条命令
+
+编译blas， 进入BLAS文件夹，执行以下几条命令
 ```shell
 gfortran -c  -O3 *.f  # 编译所有的 .f 文件，生成 .o文件
 ar rv libblas.a *.o  # 链接所有的 .o文件，生成 .a 文件
 sudo cp libblas.a /usr/local/lib  # 将库文件复制到系统库目录
 ```
 
-+ 编译cblas， 进入CBLAS文件夹，首先根据你自己的计算机平台，将目录下某个 Makefile.XXX 复制为 Makefile.in , XXX表示计算机的平台，如果是Linux，那么就将Makefile.LINUX 复制为 Makefile.in，然后执行以下命令
+编译cblas， 进入CBLAS文件夹，首先根据你自己的计算机平台，将目录下某个 Makefile.XXX 复制为 Makefile.in , XXX表示计算机的平台，如果是Linux，那么就将Makefile.LINUX 复制为 Makefile.in，然后执行以下命令
 ```shell
 cp ../BLAS/libblas.a  testing  # 将上一步编译成功的 libblas.a 复制到 CBLAS目录下的testing子目录
 make # 编译所有的目录
 sudo cp lib/cblas_LINUX.a /usr/local/lib/libcblas.a # 将库文件复制到系统库目录下
 ```
 
-+ 编译 lapack以及lapacke，这一步比较麻烦，首先当然是进入lapack-3.4.2文件夹，然后根据平台的特点，将INSTALL目录下对应的make.inc.XXX 复制一份到 lapack-3.4.2目录下，并命名为make.inc, 这里我复制的是 INSTALL/make.inc.gfortran，因为我这里用的是gfortran编译器。
+编译 lapack以及lapacke，这一步比较麻烦，首先当然是进入lapack-3.4.2文件夹，然后根据平台的特点，将INSTALL目录下对应的make.inc.XXX 复制一份到 lapack-3.4.2目录下，并命名为make.inc, 这里我复制的是 INSTALL/make.inc.gfortran，因为我这里用的是gfortran编译器。
 
 修改lapack-3.4.2/Makefile, 因为lapack以来于blas库，所以需要做如下修改
-```bash
-#lib: lapacklib tmglib
+```shll
+# lib: lapacklib tmglib
 lib: blaslib variants lapacklig tmglib
 make # 编译所有的lapack文件
 cd lapacke # 进入lapacke 文件夹，这个文件夹包含lapack的C语言接口文件
 make # 编译lapacke
-cp include/*.h /usr/local/include #将lapacke的头文件复制到系统头文件目录
+cp include/*.h /usr/local/include # 将lapacke的头文件复制到系统头文件目录
 cd .. #返回到 lapack-3.4.2 目录
-cp *.a /usr/local/lib # 将生成的所有库文件复制到系统库目录
+cp *.a /usr/local/lib   # 将生成的所有库文件复制到系统库目录
 ```
 
 这里的头文件包括： ```lapacke.h, lapacke_config.h, lapacke_mangling.h, lapacke_mangling_with_flags.h lapacke_utils.h```
 
-生成的库文件包括：`liblapack.a, liblapacke.a, librefblas.a, libtmglib.a```
+生成的库文件包括：`liblapack.a, liblapacke.a, librefblas.a, libtmglib.a`
 
 至此cblas和lapack就成功安装到你的电脑上了。
 
