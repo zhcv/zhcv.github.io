@@ -37,7 +37,7 @@ sudo cp lib/cblas_LINUX.a /usr/local/lib/libcblas.a # 将库文件复制到系�
 编译 lapack以及lapacke，这一步比较麻烦，首先当然是进入lapack-3.4.2文件夹，然后根据平台的特点，将INSTALL目录下对应的make.inc.XXX 复制一份到 lapack-3.4.2目录下，并命名为make.inc, 这里我复制的是 INSTALL/make.inc.gfortran，因为我这里用的是gfortran编译器。
 
 修改lapack-3.4.2/Makefile, 因为lapack以来于blas库，所以需要做如下修改
-```shll
+```shell
 # lib: lapacklib tmglib
 lib: blaslib variants lapacklig tmglib
 make # 编译所有的lapack文件
