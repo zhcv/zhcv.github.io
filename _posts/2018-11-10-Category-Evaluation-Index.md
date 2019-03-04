@@ -1,4 +1,13 @@
-# 常用分类问题性能评价指标
+---
+layout: post
+title: "常用分类问题性能评价指标"
+categories: AI, ML
+tags: Tools
+author: @Zhang
+---
+
+* content
+{:toc}
 
 
 ```accuracy, recall, precision, confusion matrix F1-score, mAP```
