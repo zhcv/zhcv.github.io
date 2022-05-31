@@ -13,9 +13,9 @@ type: page
 
 <iframe src="https://githubbadge.appspot.com/gaohaoyang?s=1" style="border: 0;height: 142px;width: 200px;overflow: hidden;" frameBorder="0"></iframe>
 
-就职于阿里巴巴，前端开发。
+就职于LX Tech，从事深度学习图像算法开发。
 
-主要兴趣集中在前端开发，大前端的概念深入我心。将更多的业务逻辑放在前端中，这很有趣。同时，将自己构想的内容实现出来，这种感觉很愉快。
+主要兴趣集中在机器学习，ai的概念深入我心。将更多的业务逻辑放在算法开发，炼丹中，这很有趣。同时，将自己构想的内容实现出来，这种感觉很愉快。
 
 热爱美好的事物，热爱摇滚乐，组过乐队，卖过唱。
 
@@ -23,17 +23,16 @@ type: page
 
 还有，学习是一个非常愉快的过程。共同加油！
 
-* 2016.6.30 入职阿里巴巴
-* 2016.6 毕业于西安交通大学 软件工程硕士
-* 2015.12 获得2014-2015学年二等奖学金
-* 2015.7-2015.8 联想服务，前端开发工程师（实习生）
-* 2013.6 毕业于西安交通大学 理学院
-* 2001 获得西航四校总成绩年级排名第八名
+* 2021.8.16 入职LX Tech.
+* 2019.5.1  入职Ubisor Tech.
+* 2017.6.29 入职江西中科九峰
+* 2017.6    毕业于南昌航空大学应用数学专业
+
 
 ## 联系我
 
-* GitHub：[Gaohaoyang](https://github.com/Gaohaoyang)
-* email：gaohaoyang126@126.com
+* GitHub：[ZhangHaipeng](https://github.com/zhcv)
+* email：zhp9005@gmail.com
 * [Weibo](http://weibo.com/3115521wh)
 * [知乎](https://www.zhihu.com/people/gaohaoyang)
 * [Facebook](https://www.facebook.com/gaohaoyang.water)
