@@ -1,76 +1,98 @@
 ---
 layout: post
-title: "IQA"
-categories: project
-tags: project, working
-author: ZhP
+title: "LeNet 网络结构"
+categories: deeplearning
+tags: ai
+author: ZhangHaipeng
 ---
 
 * content
 {:toc}
 
-## LeNet 网络结构
+
+### 前言
+[LeNet5](http://yann.lecun.com/exdb/publis/pdf/lecun-98.pdf)通过巧妙的设计，利用卷积、参数共享、池化等操作提取特征，避免了大量的计算成本，最后再使用全连接神经网络进行分类识别，这个网络是卷积神经网络架构的起点，后续许多网络都以此为范本进行优化。Lenet 是一系列网络的合称，包括 Lenet1 - Lenet5，由 Yann LeCun 等人在 1990 年《Handwritten Digit Recognition with a Back-Propagation Network》中提出，是卷积神经网络的 HelloWorld。
+
+### 一、Lenet5网络结构
+Lenet是一个 7 层的神经网络，包含 3 个卷积层，2 个池化层，1 个全连接层。其中所有卷积层的所有卷积核都为 5x5，步长 strid=1，池化方法都为全局 pooling，激活函数为 Sigmoid，网络结构如下：
+<img src="./picture/LeNet-5.png">
 
 
-## LeNet
-LeNet5通过巧妙的设计，利用卷积、参数共享、池化等操作提取特征，避免了大量的计算成本，
-最后再使用全连接神经网络进行分类识别，这个网络是卷积神经网络架构的起点，后续许多网
-络都以此为范本进行优化。
+特点：
 
+1.相比MLP，LeNet使用了相对更少的参数，获得了更好的结果。
 
-LeNet-5 共有7层，不包含输入，每层都包含可训练参数；每个层有多个特征映射(feature map),
-每个feature map 通过一种卷积滤波器(filter)提取输入的一种特征，最终经过全连接层和
-softmax函数完成分类。
+2.设计了maxpool来提取特征
 
-
-
-
-
-1）熵
-熵是指图像的平均信息量，它从信息论的角度衡量图像中信息的多少，图像中的信息熵越大，说明图像包含的信息越多。假设图像中各个像素点的灰度值之间是相互独立的，图像的灰度分布为p={p1,p2,…,pi,…,pn},其中pi表示灰度值为i的像素个数与图像总像素个数之比，而n为灰度级总数，其计算公式为：
-E = -
-其中，P(l)为灰度值l在图像中出现的概率，L为图像的灰度级，对于256灰度等级的图像而言，L=255.
-
-
-在生产环境上迁移GitLab的目录需要注意一下几点：
-
-1. 目录的权限必须为755或者775
-
-2. 目录的用户和用户组必须为git:git
-
-3. 如果在深一级的目录下，那么git用户必须添加到上一级目录的账户。
-
-4. 很多文章说修改/etc/gitlab/gitlab.rb这个文件里面的`git_data_dirsb`变量，其实没必要，只需要使用软链接改变原始目录/var/opt/gitlab/git-data更好一些.
-
-5. 注意：迁移前的版本和迁移后的版本必须保持一致, 如果迁移后的版本是高版本, 那么现在原版本做升级后再迁移.
-
-迁移方法:
-```shell
-# 停止服务
-gitlab-ctl stop
-
-# 备份目录
-mv /var/opt/gitlab/git-data{,_bak}
-
-# 新建新目录
-mkdir -p /data/service/gitlab/git-data
-
-# 设置目录权限
-chown -R git:git /data/service/gitlab
-chmod -R 775 /data/service/gitlab
-
-# 同步文件，使用rsync保持权限不变
-rsync -av /var/opt/gitlab/git-data_bak/repositories /data/service/gitlab/git-data/
-
-# 创建软链接
-ln -s /data/service/gitlab/git-data /var/opt/gitlab/git-data
-
-# 更新权限
-gitlab-ctl upgrade
-
-# 重新配置
-gitlab-ctl reconfigure
-
-# 启动gitlab服务
-gitlab-ctl start
+### 二、Lenet的keras实现
+如今各大深度学习框架中所使用的LeNet都是简化改进过的LeNet-5，和原始的LeNet有些许不同，把激活函数改为了现在很常用的ReLu。LeNet-5跟现有的conv->pool->ReLU的套路不同，它使用的方式是conv1->pool->conv2->pool2再接全连接层，但是不变的是，卷积层后紧接池化层的模式依旧不变。
+```python
+def LeNet():
+    model = Sequential()
+    # 原始的Lenet此处卷积核数量为6，且激活函数为线性激活函数
+    model.add(Conv2D(32, (5,5), strides=(1,1), input_shape=(28,28,1), padding='valid', activation='relu', kernel_initializer='uniform'))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    # 原始的Lenet此处卷积核数量为16，且激活函数为线性激活函数
+    model.add(Conv2D(64, (5,5), strides=(1,1), padding='valid', activation='relu', kernel_initializer='uniform'))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Flatten())
+    model.add(Dense(100, activation='relu'))
+    model.add(Dense(10, activation='softmax'))
+    return model
 ```
+
+### 三、Lenet的pytorch实现
+```python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class LeNet5(nn.Module):
+    def __init__(self, num_classes, grayscale=False): 
+        """
+        num_classes: 分类的数量
+        grayscale：  是否为灰度图
+        """
+        super(LeNet5, self).__init__()
+
+        self.grayscale = grayscale
+        self.num_classes = num_classes
+
+        if self.grayscale: # 可以适用单通道和三通道的图像
+            in_channels = 1
+        else:
+            in_channels = 3
+
+        # 卷积神经网络
+        self.features = nn.Sequential(
+            nn.Conv2d(in_channels, 6, kernel_size=5),
+            nn.MaxPool2d(kernel_size=2),
+            nn.Conv2d(6, 16, kernel_size=5),
+            nn.MaxPool2d(kernel_size=2)   # 原始的模型使用的是 平均池化
+        )
+        # 分类器
+        self.classifier = nn.Sequential(
+            nn.Linear(16*5*5, 120),       # 这里把第三个卷积当作是全连接层了
+            nn.Linear(120, 84), 
+            nn.Linear(84, num_classes)
+        )
+
+    def forward(self, x):
+        x = self.features(x)        # 输出 16*5*5 特征图
+        x = torch.flatten(x, 1)     # 展平 （1， 16*5*5）
+        logits = self.classifier(x) # 输出 10
+        probas = F.softmax(logits, dim=1)
+        return logits, probas
+
+
+if __name__ == "__main__":
+    num_classes = 10    # 分类数目
+    grayscale = True    # 是否为灰度图
+    data = torch.rand((1, 1, 32, 32))
+    print("input data:\n", data, "\n")
+    model = LeNet5(num_classes, grayscale)
+    logits, probas = model(data)
+    print("logits:\n",logits)
+    print("probas:\n",probas)
+```
+  
