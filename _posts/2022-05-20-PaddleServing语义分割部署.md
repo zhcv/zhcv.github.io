@@ -17,6 +17,7 @@ author: ZhangHaipeng
 
 #### 二、官方示例部署
 **2.1 安装PaddleServing**
+
 从官网下载最新稳定离线版whl文件进行安装，各组件安装命令如下：
 ```shell
 # 安装客户端：
@@ -30,6 +31,7 @@ pip install paddle-serving-client
 在安装时为了加速可以添加百度镜像源参数：`-i https://mirror.baidu.com/pypi/simple`
 
 **2.2 导出静态图模型**
+
 一般来说我们使用PaddlePaddle动态图训练出来的模型如果直接部署，其推理效率是比较低的。为了能够实现高效、稳定部署，我们需要将训练好的模型转换为静态图模型。
 
 导出示例请参考官网说明。
@@ -50,11 +52,9 @@ tar zxvf bisenet_demo_model.tar.gz
 到这里，需要的部署数据都准备好了。
 
 **2.3 转换为serving模型**
+
 为了能够使用Paddle Serving工具实现AI服务器云部署，我们需要前面准备好的静态图模型转换为Paddle Serving可以使用的部署模型。
-
 我们将使用`paddle_serving_client.convert`工具进行转换，具体命令如下：
-
-
 ```shell
 python -m paddle_serving_client.convert \
 	--dirname ./bisenetv2_demo_model \
@@ -65,9 +65,10 @@ python -m paddle_serving_client.convert \
 ![img](https://img-blog.csdnimg.cn/a74d3ffad39c44e3a79a12f9f5ff135a.png)
 
 **2.4 启动服务**
+
 按照官方示例，我们使用paddle_serving_server.serve的RPC服务模式，详细信息请参考文档。（需要注意的是，这种模式本质上是C/S架构，优势是响应快，缺点是在客户端需要安装相应的库并需要编写预处理代码）
 
-我们在服务器端使用27008端口。
+我们在服务器端使用`27008`端口。
 ```shell
 python3 -m paddle_serving_server.serve \
 	--model serving_server \
@@ -95,6 +96,7 @@ sudo cp TensorRT-6.0.1.8/targets/x86_64-linux-gnu/lib/libnvinfer.so.6  /usr/lib/
 重新启动服务端就可以正常跑起来了。
 
 **2.5 客户端请求**
+
 客户端采用python脚本进行访问请求。
 完整请求代码如下：
 ```python
@@ -227,7 +229,9 @@ ps -ef | grep web_service | awk '{print $2}' | xargs kill -9
 
 #### 三、基于PipeLine的抠图功能部署
 **3.1 基于深度学习的抠图功能测试**
+
 **3.1.1 算法库下载**
+
 首先从github官网下载最新的paddleseg套件，也可以从我的gitee镜像上下载（速度会快一些）：
 
 ```shell
@@ -259,6 +263,7 @@ Matting（精细化分割/影像去背/抠图）是指借由计算前景的颜�
 PaddleSeg套件提供多种场景人像抠图模型, 可根据实际情况选择相应模型。这里我们选择PP-Matting-512模型进行部署应用。读者也可以参照官网教程自行训练模型，然后转为静态图模型使用。本教程更偏重算法部署，对于算法原理和训练本教程不再深入阐述，对深度学习抠图有兴趣的读者可以参考我的另一篇博客了解相关算法原理。
 
 **3.1.3 抠图算法测试**
+
 首先下载训练好的模型。如下图所示：
 ![img](https://img-blog.csdnimg.cn/d7039f9e2b7942f7b6262f76181aa2ed.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6ZKx5b2sIChRaWFuIEJpbik=,size_19,color_FFFFFF,t_70,g_se,x_16)
 
@@ -285,7 +290,8 @@ python deploy/python/infer.py \
 
 ##### 3.2 基于PipeLine的Serving部署
 **3.2.1 转换为serving部署模型**
-使用paddle_serving_client.convert工具进行转换，具体命令如下：
+
+使用`paddle_serving_client.convert`工具进行转换，具体命令如下：
 
 ```python
 python -m paddle_serving_client.convert \
@@ -314,6 +320,7 @@ fetch_var {
 ```
 根据这个文件，我们在写部署代码的时候需要注意对应的输入、输出变量名称，这里输入变量名为img,输出变量名为tmp_75。
 **3.2.2 设置config.yml部署配置文件**
+
 在当前目录下新建config.yml文件，内容如下：
 ```yaml
 dag:
@@ -354,8 +361,8 @@ op:
 如果要部署自己的模型请根据注释结合自己需要部署的模型参数对照着进行修改。
 
 **3.2.3 编写服务端脚本文件**
-新建`web_service.py`文件，内容如下：
 
+新建`web_service.py`文件，内容如下：
 ```python
 import numpy as np
 import cv2
@@ -474,6 +481,7 @@ python web_service.py
 ```
 
 **3.2.4 客户端调用**
+
 这里需要注意，由于我们采用了Pipeline模式，所有的图像预处理和后处理操作都放在了服务端，因此，客户端不需要加载额外的库，也不需要进行相关图像预处理代码编写。因此，我们可以采用任何客户端方式（浏览器、脚本、移动端等），只需要按照http restful协议传送相关json数据即可。
 
 本文为了简单，采用python脚本来作为客户端（也可以仿照这个脚本使用postman进行测试）。新建脚本文件`pipeline_http_client.py`，具体代码如下：
