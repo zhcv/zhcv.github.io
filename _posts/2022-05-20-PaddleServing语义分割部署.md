@@ -1,4 +1,16 @@
-### PaddleServing图像语义分割部署实践
+---
+layout: post
+title: "IQA"
+categories: project
+tags: project, working
+author: ZhangHaipeng
+---
+
+* content
+{:toc}
+
+
+## PaddleServing图像语义分割部署实践
 
 #### 一、任务概述
 本教程基于PaddleServing实现图像语义分割模型部署。首先我们会按照官方示例将部署流程跑一边，然后我们逐步调整代码和配置，基于更通用的PipeLine模式全流程实现抠图功能部署。
@@ -7,16 +19,16 @@
 **2.1 安装PaddleServing**
 从官网下载最新稳定离线版whl文件进行安装，各组件安装命令如下：
 ```shell
-安装客户端：pip install paddle-serving-client
-安装服务器端（CPU或者GPU版二选一）：
+# 安装客户端：
+pip install paddle-serving-client
+
+# 安装服务器端（CPU或者GPU版二选一）：
 安装CPU服务端：pip install paddle-serving-server
 安装GPU服务端：pip install paddle-serving-server-gpu
 安装工具组件：pip install paddle-serving-app
-在安装时为了加速可以添加百度镜像源参数：
-
--i https://mirror.baidu.com/pypi/simple
-​```
 ```
+在安装时为了加速可以添加百度镜像源参数：`-i https://mirror.baidu.com/pypi/simple`
+
 **2.2 导出静态图模型**
 一般来说我们使用PaddlePaddle动态图训练出来的模型如果直接部署，其推理效率是比较低的。为了能够实现高效、稳定部署，我们需要将训练好的模型转换为静态图模型。
 
@@ -28,39 +40,34 @@
 
 ```shell
 wget https://paddleseg.bj.bcebos.com/dygraph/demo/bisenet_demo_model.tar.gz
-
 tar zxvf bisenet_demo_model.tar.gz
 ```
 
 解压后看到模型文件夹中内容如下所示：
-
 然后我们准备一张用于测试的街景图像：
 
 ![img](https://img-blog.csdnimg.cn/f2f4b2e8b2ac483b953222bd0d79daa3.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6ZKx5b2sIChRaWFuIEJpbik=,size_20,color_FFFFFF,t_70,g_se,x_16)
-
- 到这里，需要的部署数据都准备好了。
+到这里，需要的部署数据都准备好了。
 
 **2.3 转换为serving模型**
 为了能够使用Paddle Serving工具实现AI服务器云部署，我们需要前面准备好的静态图模型转换为Paddle Serving可以使用的部署模型。
 
 我们将使用`paddle_serving_client.convert`工具进行转换，具体命令如下：
 
+
 ```shell
-​```shell
 python -m paddle_serving_client.convert \
 	--dirname ./bisenetv2_demo_model \
 	--model_filename model.pdmodel \
 	--params_filename model.pdiparams
 ```
 执行完成后，当前目录下的serving_server文件夹保存服务端模型和配置，serving_client文件夹保存客户端模型和配置，如下图所示：
-
 ![img](https://img-blog.csdnimg.cn/a74d3ffad39c44e3a79a12f9f5ff135a.png)
 
 **2.4 启动服务**
 按照官方示例，我们使用paddle_serving_server.serve的RPC服务模式，详细信息请参考文档。（需要注意的是，这种模式本质上是C/S架构，优势是响应快，缺点是在客户端需要安装相应的库并需要编写预处理代码）
 
 我们在服务器端使用27008端口。
-
 ```shell
 python3 -m paddle_serving_server.serve \
 	--model serving_server \
@@ -72,32 +79,24 @@ python3 -m paddle_serving_server.serve \
 error while loading shared libraries: libnvinfer.so.6: cannot open shared object file: No such file or directory
 我们需要下载tensorrt库并将其添加到自己的环境变量去（注意tensortrt版本要与我们安装的paddle-serving-server-gpu版本一致）。相关解决方案请参考博客。安装完成后需要导入环境变量：
 
-打开并编辑bashrc文件：
-
-vim ~/.bashrc
+打开并编辑bashrc文件：`vim ~/.bashrc`
 在文件最后添加：
-
 ```shell
 export LD_LIBRARY_PATH=/home/suser/copy/TensorRT-6.0.1.8/lib:$LD_LIBRARY_PATH
 ```
 
 保存修改后把相关文件进行拷贝：
-
 ```shell
 sudo cp TensorRT-6.0.1.8/targets/x86_64-linux-gnu/lib/libnvinfer.so.6  /usr/lib/
 ```
 
 最后使用下面的命令使其生效：
-
 `source ~/.bashrc`
 重新启动服务端就可以正常跑起来了。
 
 **2.5 客户端请求**
 客户端采用python脚本进行访问请求。
-
 完整请求代码如下：
-
-
 ```python
 import os
 import numpy as np
@@ -175,23 +174,20 @@ if name == 'main':
     run(args)
 ```
 
-
 然后使用下面的命令启动：
-
 ```shell
 python test.py \
     --serving_client_path serving_client \
     --serving_ip_port 127.0.0.1:27008 \
     --image_path cityscapes_demo.png
 ```
-运行后可能会出现下面的错误：
 
+运行后可能会出现下面的错误：
 ````shell
 libcrypto.so.10: cannot open shared object file: No such file or directory
 ````
 
 解决方案如下：
-
 ```bash
 wget https://paddle-serving.bj.bcebos.com/others/centos_ssl.tar 
 tar xf centos_ssl.tar 
@@ -202,35 +198,30 @@ sudo ln -sf /usr/lib/libcrypto.so.1.0.2k /usr/lib/libcrypto.so.10
 sudo ln -sf /usr/lib/libssl.so.1.0.2k /usr/lib/libssl.so.10 
 sudo ln -sf /usr/lib/libcrypto.so.10 /usr/lib/libcrypto.so
 sudo ln -sf /usr/lib/libssl.so.10 /usr/lib/libssl.so
-
 ```
 
 修改后重新执行客户端请求代码，结果如下图所示：
-
 ```shell
 I0423 10:45:54.155158 20937 naming_service_thread.cpp:202] brpc::policy::ListNamingService("127.0.0.1:27008"): added 1
 
 I0423 10:46:01.689276 20937 general_model.cpp:490] [client]logid=0,client_cost=7292.98ms,server_cost=6954.06ms.
-
 The segmentation image is saved in ./result.png
 ```
 
 执行完成后，分割的图片保存在当前目录的`result.png`。
-
 分割结果如下图所示：
 
 ![img](https://img-blog.csdnimg.cn/2fd46d5e6ff342c69d56c8722ca2fd25.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6ZKx5b2sIChRaWFuIEJpbik=,size_20,color_FFFFFF,t_70,g_se,x_16)
 
- 想要彻底停止服务可以使用下面的命令：
+想要彻底停止服务可以使用下面的命令：
 
 ```shell
 ps -ef | grep serving | awk '{print $2}' | xargs kill -9
 ps -ef | grep web_service | awk '{print $2}' | xargs kill -9
 ```
+从整个执行上来分析，这种基于RPC的方式有个明显的缺点，就是需要客户端来实现所有的预处理和后处理操作。这对于跨语言的应用任务来说是比较麻烦的，例如我们如果采用java作为前台语言，那么就只能使用java来执行图像相关预处理和后处理。为了解决这个问题，`paddle serving`提供了`java`版的客户端，其本质是一个封装好的基于java的图像预处理工具。前端程序员还是需要手工编写客户端代码，协调合作时比较麻烦。
 
-从整个执行上来分析，这种基于RPC的方式有个明显的缺点，就是需要客户端来实现所有的预处理和后处理操作。这对于跨语言的应用任务来说是比较麻烦的，例如我们如果采用java作为前台语言，那么就只能使用java来执行图像相关预处理和后处理。为了解决这个问题，paddle serving提供了java版的客户端，其本质是一个封装好的基于java的图像预处理工具。前端程序员还是需要手工编写客户端代码，协调合作时比较麻烦。
-
-下面我们将使用另一种pipeline的方法，所有的预处理和后处理也一起交给服务端去做，这样就彻底跟前端功能剥离开来，前后端之间通过http接口进行通讯。这种方式相对于RPC模式来说速度会慢一些，但是很显然，其通用性更好。
+下面我们将使用另一种`pipeline`的方法，所有的预处理和后处理也一起交给服务端去做，这样就彻底跟前端功能剥离开来，前后端之间通过http接口进行通讯。这种方式相对于RPC模式来说速度会慢一些，但是很显然，其通用性更好。
 
 下面我们就使用一个更加具体的抠图任务来实现整个的PipeLine部署。
 
@@ -247,9 +238,7 @@ pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
 python setup.py install
 ```
 
-
 注意如果本地安装失败，也可以使用在线安装方式：
-
 ```shell
 cd PaddleSeg
 pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
@@ -259,8 +248,7 @@ cd到Matting文件夹中：
 cd PaddleSeg/Matting
 ```
 
-这个文件夹下面就是PaddleSeg官方在维护的抠图算法套件。
-
+这个文件夹下面就是`PaddleSeg`官方在维护的抠图算法套件。
 **3.1.2 抠图算法说明**
 Matting（精细化分割/影像去背/抠图）是指借由计算前景的颜色和透明度，将前景从影像中撷取出来的技术，可用于替换背景、影像合成、视觉特效，在电影工业中被广泛地使用。影像中的每个像素会有代表其前景透明度的值，称作阿法值（Alpha），一张影像中所有阿法值的集合称作阿法遮罩（Alpha Matte），将影像被遮罩所涵盖的部分取出即可完成前景的分离。
 
@@ -272,15 +260,12 @@ PaddleSeg套件提供多种场景人像抠图模型, 可根据实际情况选择
 
 **3.1.3 抠图算法测试**
 首先下载训练好的模型。如下图所示：
-
 ![img](https://img-blog.csdnimg.cn/d7039f9e2b7942f7b6262f76181aa2ed.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6ZKx5b2sIChRaWFuIEJpbik=,size_19,color_FFFFFF,t_70,g_se,x_16)
 
 模型下载后解压放置在Matting/data文件夹下。
-
 然后我们下载[PPM-100](https://paddleseg.bj.bcebos.com/matting/datasets/PPM-100.zip)数据集用于后续测试。下载下来后解压放置在Matting/data目录下。
 
 最终我们可以使用下面的脚本命令进行测试：
-
 ```python
 python deploy/python/infer.py \
     --config data/pp-matting-hrnet_w18-human_512/deploy.yaml \
@@ -288,22 +273,19 @@ python deploy/python/infer.py \
     --save_dir output/results
 ```
 推理完成后在output/results目录下保存了抠图后的测试图像结果。
-
 部分效果如下：
 
  <img src="https://img-blog.csdnimg.cn/2f4126a9caf3424483d76397fba6efe8.png" width="200"><img src="https://img-blog.csdnimg.cn/8dd6e25e912b4d079008105b94260957.png" width="200">
 
-  从效果上分析，整体抠图性能还是比较好的。
+从效果上分析，整体抠图性能还是比较好的。
+当然，对于一些复杂的照片抠图效果还是有待再提高的，例如下面的示例：
 
- 当然，对于一些复杂的照片抠图效果还是有待再提高的，例如下面的示例：
-
-  <img src="https://img-blog.csdnimg.cn/5ccade8820a54449903f566173074186.png" width="300" /><img src="https://img-blog.csdnimg.cn/14223580645c459bb3648f445c6f0429.png" width="300" />
+<img src="https://img-blog.csdnimg.cn/5ccade8820a54449903f566173074186.png" width="300" /><img src="https://img-blog.csdnimg.cn/14223580645c459bb3648f445c6f0429.png" width="300" />
 
 
 ##### 3.2 基于PipeLine的Serving部署
 **3.2.1 转换为serving部署模型**
 使用paddle_serving_client.convert工具进行转换，具体命令如下：
-
 
 ```python
 python -m paddle_serving_client.convert \
@@ -312,9 +294,7 @@ python -m paddle_serving_client.convert \
     --params_filename model.pdiparams
 ```
 执行完成后，当前目录下的serving_server文件夹保存服务端模型和配置，serving_client文件夹保存客户端模型和配置，如下图所示：
-
- 我们打开serving_server_conf.prototxt文件，其内容如下所示：
-
+我们打开serving_server_conf.prototxt文件，其内容如下所示：
 ```protobuf
 feed_var {
     name: "img"
@@ -332,9 +312,7 @@ fetch_var {
     shape: 1
 }
 ```
-
 根据这个文件，我们在写部署代码的时候需要注意对应的输入、输出变量名称，这里输入变量名为img,输出变量名为tmp_75。
-
 **3.2.2 设置config.yml部署配置文件**
 在当前目录下新建config.yml文件，内容如下：
 ```yaml
@@ -372,12 +350,11 @@ op:
       - tmp_75
       #模型路径
       model_config: serving_server
-​```
 ```
 如果要部署自己的模型请根据注释结合自己需要部署的模型参数对照着进行修改。
 
 **3.2.3 编写服务端脚本文件**
-新建web_service.py文件，内容如下：
+新建`web_service.py`文件，内容如下：
 
 ```python
 import numpy as np
@@ -488,8 +465,6 @@ matting_service.prepare_pipeline_config("config.yml")
 # 启动服务
 matting_service.run_service()
 ```
-
-
 上述代码做了注释，读者可以自行阅读分析。
 
 最后使用下面的命令启动服务：
@@ -510,19 +485,18 @@ import json
 import cv2
 import base64
 
+
 def cv2_to_base64(image):
     return base64.b64encode(image).decode('utf8')
 
 # 定义http接口
 url = "http://127.0.0.1:27008/matting/prediction"
-
 # 打开待预测的图像文件
 with open('./data/PPM-100/val/fg/1.jpg', 'rb') as file:
     image_data1 = file.read()
 
 # 采用base64编码图像文件
 image = cv2_to_base64(image_data1)
-
 # 按照特定格式封装成字典
 data = {"key": ["image"], "value": [image]}
 
@@ -546,10 +520,7 @@ else:
 	cv2.imwrite('result.png',img)
 	print('完成')
 ```
-
 执行预测：`python3 pipeline_http_client.py`
 
 #### 四、小结
 本教程以PaddleServing部署为目标，以语义分割（抠图）案例贯穿整个部署环节，最终成功实现服务器线上部署和调用。通过本教程的学习，可以快速将训练好的深度学习模型进行上线，同时具备良好的稳定性。
-————————————————
-原文链接：https://blog.csdn.net/qianbin3200896/article/details/124330556
