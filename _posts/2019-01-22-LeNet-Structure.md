@@ -15,7 +15,7 @@ author: ZhangHaipeng
 
 ### 一、Lenet5网络结构
 Lenet是一个 7 层的神经网络，包含 3 个卷积层，2 个池化层，1 个全连接层。其中所有卷积层的所有卷积核都为 5x5，步长 strid=1，池化方法都为全局 pooling，激活函数为 Sigmoid，网络结构如下：
-<img src="./picture/LeNet-5.png">
+<img src="https://raw.githubusercontent.com/zhcv/zhcv.github.io/master/_posts/picture/LeNet-5.png">
 
 
 特点：
