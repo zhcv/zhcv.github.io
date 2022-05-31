@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "IQA"
-categories: project
-tags: project, working
+title: "PaddleServing图像语义分割部署实践"
+categories: paddle
+tags: segment
 author: ZhangHaipeng
 ---
 
