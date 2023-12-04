@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "pyinstaller 安装教程"
+title:  "python pyinstaller 安装和使用教程"
 date:   2023-12-1 10:15:18
 categories: Bootstrap
 tags: python pyinstaller
