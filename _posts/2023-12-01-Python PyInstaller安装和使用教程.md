@@ -1,3 +1,14 @@
+---
+layout: post
+title:  "Teach Girlfriend to make a Web Pages like Zhihu"
+date:   2023-12-1 10:15:18
+categories: Bootstrap
+tags: BootStrap HTML CSS Zhihu
+---
+
+* content
+{:toc}
+
 在创建了独立应用（自包含该应用的依赖包）之后，还可以使用 PyInstaller 将 Python 程序生成可直接运行的程序，这个程序就可以被分发到对应的 Windows 或 Mac OS X 平台上运行。
 
 ### 安装 PyInstalle
