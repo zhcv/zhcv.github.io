@@ -70,6 +70,7 @@ pyinstaller -D app.py
 
 PyInstaller 不仅支持` -F、-D `选项，而且也支持如表 1 所示的常用选项。
 <p style="text-align: center;">表 1 PyInstaller 支持的常用选项</p>
+
 |-h，–help |查看该模块的帮助信息 |
 |--------------| ----------------|
 |-F，-onefile |产生单个的可执行文件 | 
