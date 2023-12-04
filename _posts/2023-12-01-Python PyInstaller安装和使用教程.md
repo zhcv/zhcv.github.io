@@ -1,9 +1,9 @@
 ---
 layout: post
-title:  "Teach Girlfriend to make a Web Pages like Zhihu"
+title:  "pyinstaller 安装教程"
 date:   2023-12-1 10:15:18
 categories: Bootstrap
-tags: BootStrap HTML CSS Zhihu
+tags: python pyinstaller
 ---
 
 * content
@@ -73,7 +73,7 @@ PyInstaller 不仅支持` -F、-D `选项，而且也支持如表 1 所示的常
 表 1 PyInstaller 支持的常用选项
 
 |-h，--help	     |查看该模块的帮助信息 |
-|----------------|--------------------|
+| --------------- | ---------------  | 
 |-F，-onefile	   |产生单个的可执行文件 | 
 |-D，--onedir	   |产生一个目录（包含多个文件）作为可执行程序|
 |-a，--ascii	   |不包含 Unicode 字符集支持|
