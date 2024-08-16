@@ -146,3 +146,10 @@ Pyinstaller -F -w main.py
 ```
 直接双击运行 `main.exe` 程序（该程序有图形用户界面，因此可以双击运行），读者可自行查看运行结果。
 ```
+
+项目打包
+使用虚拟环境，安装所需最小资源的包
+```shell
+pyinstaller -F -c -i main.ico --onefile main.py
+```
+> -i: 添加exe 图标 -c 添加打开cmd窗口 
